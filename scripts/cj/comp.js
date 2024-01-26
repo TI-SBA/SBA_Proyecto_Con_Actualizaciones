@@ -367,6 +367,7 @@ cjComp = {
 					K.closeWindow(p.$w.attr('id'));
 				}
 			},
+
 			onClose: function(){
 				p.$w.find('[name=btnEliDeb]').die('click');
 				p.$w.find('[name=btnAgrDeb]').die('click');
@@ -374,10 +375,14 @@ cjComp = {
 				p.$w.find('[name=btnAgrHab]').die('click');
 				p = null;
 			},
+
+
 			onContentLoaded: function(){
 				p.$w = $('#windowCompGen');
+				
 				$(window).resize(function(){
 					var $this = $('#windowCompGen');
+
 					$this.dialog( "option", "height", $(window).height() )
 						.dialog( "option", "width", $(window).width() )
 						.dialog( "option", "position", [ 0 , 0 ] )
@@ -423,211 +428,350 @@ cjComp = {
 						return K.notification({title: ciHelper.titleMessages.infoReq,text: 'Debe seleccionar una organizaci&oacute;n!',type: 'error'});
 					}
 					K.block({$element: p.$w});
-					$.post('cj/rein/get_rec',{
-						fec: $(this).val(),
-						fecfin: p.$w.find('[name=fecfin]').val(),
-						orga: '51a50f0f4d4a13c409000013',//orga._id.$id,
-						actividad: '51e996044d4a13440a00000e',//orga.actividad._id.$id,
-						componente: '51e99d7a4d4a13c404000016'//orga.componente._id.$id
-					},function(data){
-						
-						
-						
-						
-						
-						
-						
-						
-						var tmp_ctas_pat = [];
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						p.$w.find('fieldset:eq(1) .gridBody').empty();
-						p.$w.find('fieldset:eq(3) .gridBody').empty();
-						p.$w.find('.payment:eq(11) .gridBody').empty();
-						var $row = p.$w.find('.payment:eq(11) .gridReference').clone();
-						$row.find('li:eq(3)').html('<button name="btnEliHab">Eliminar</button>&nbsp;<button name="btnAgrHab">Agregar</button>');
-						$row.find('[name=btnEliHab]').button({icons: {primary: 'ui-icon-trash'},text: false});
-						$row.find('[name=btnAgrHab]').button({icons: {primary: 'ui-icon-plusthick'},text: false});
-						$row.wrapInner('<a class="item">');
-						p.$w.find('.payment:eq(11) .gridBody').append($row.children());
-						p.$w.find('fieldset:eq(2) .gridBody,fieldset:eq(3) .gridBody').empty();
-						if(data.comp==null){
-							K.unblock({$element: p.$w});
-							return K.notification({title: ciHelper.titleMessages.infoReq,text: 'No hay comprobantes registrados para la fecha seleccionada!',type: 'error'});
-						}
-						p.comp = data.comp;
-						p.prog = data.prog;
-						var $row = p.$w.find('fieldset:eq(3) .gridReference').clone();
-						$row.find('li:eq(0)').html(data.prog.pliego.cod);
-						$row.find('li:eq(1)').html(data.prog.programa.cod);
-						$row.find('li:eq(2)').html(data.prog.subprograma.cod);
-						$row.find('li:eq(3)').html(data.prog.proyecto.cod);
-						$row.find('li:eq(4)').html(data.prog.obra.cod);
-						//$row.find('li:eq(5)').html(orga.actividad.cod);
-						//$row.find('li:eq(6)').html(orga.componente.cod);
-						$row.find('li:eq(7)').append('<select name="fuente">');
-						for(var k=0,l=p.fuen.length; k<l; k++){
-							$row.find('select').append('<option value="'+p.fuen[k]._id.$id+'">'+p.fuen[k].cod+'</option>');
-							$row.find('select option:last').data('data',p.fuen[k]);
-						}
-						$row.wrapInner('<a class="item">');
-						p.$w.find('fieldset:eq(3) .gridBody').append($row.children());
-						/* Efectivo en pagos */
-						p.$w.find('fieldset:eq(4) .gridBody').empty();
-						var $row = p.$w.find('fieldset:eq(4) .gridReference').clone();
-						$row.find('li:eq(0)').html('Efectivo Soles');
-						$row.find('li:eq(2)').html(ciHelper.formatMon(0));
-						$row.find('li:eq(3)').html(ciHelper.formatMon(0));
-						$row.wrapInner('<a class="item">');
-						$row.find('.item').data('total',0);
-						p.$w.find('fieldset:eq(4) .gridBody').append($row.children());
-						var $row = p.$w.find('fieldset:eq(4) .gridReference').clone();
-						$row.find('li:eq(0)').html('Efectivo D&oacute;lares');
-						$row.find('li:eq(2)').html(ciHelper.formatMon(0,'D'));
-						$row.find('li:eq(3)').html(ciHelper.formatMon(0));
-						$row.wrapInner('<a class="item">');
-						$row.find('.item').data('total',0);
-						p.$w.find('fieldset:eq(4) .gridBody').append($row.children());
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						/*data.comp.sort(function(a,b){
-							console.log(a);
-							//items.conceptos.cuenta.cod
-							if (a.cuenta.cod < b.cuenta.cod) //sort string ascending
-								return -1;
-							if (a.cuenta.cod > b.cuenta.cod)
-								return 1;
-							return 0;
-						});*/
-						
-						
-						
-						
-						
-						
-						
-						/* Bucle de comprobantes */
-						var tot_sol = 0,
-						tot_dol = 0,
-						tot_dol_sol = 0,
-						total = 0;
-						var _ids = [];
-						for(var i=0,j=data.comp.length; i<j; i++){
-							var result = data.comp[i];
-							if(result.estado=='X'){
-								var $row = p.$w.find('fieldset:eq(2) .gridReference').clone();
-								$row.find('li:eq(0)').html(result.tipo+' '+result.serie+' '+result.num);
-								$row.find('li:eq(1)').html(ciHelper.enti.formatName(result.cliente));
-								$row.wrapInner('<a class="item">');
-								$row.find('.item').data('data',{
-									_id: result._id.$id,
-									tipo: result.tipo,
-									serie: result.serie,
-									num: result.num
-								});
-								p.$w.find('fieldset:eq(2) .gridBody').append($row.children());
-							}else{
-								if(result.items!=null){
-									
-									if(_ids.indexOf(result._id.$id)==-1){
-										_ids.push(result._id.$id);
-										for(var k=0,l=result.items.length; k<l; k++){
-												var item = result.items[k];
-												for(var m=0,n=item.conceptos.length; m<n; m++){
-													var conc = item.conceptos[m],
-													$row = p.$w.find('fieldset:eq(1) [name='+result._id.$id+'-'+conc.cuenta._id.$id+'-'+conc.concepto._id.$id+']'),
-													tot_conc = (result.moneda=='S')?parseFloat(conc.monto):parseFloat(conc.monto)*parseFloat(result.tc);
-													console.info(result.tipo+' '+result.serie+' - '+result.num+'===>'+tot_conc);
+
+				//ACLARO QUE ESTA FUNCION ES PARA QUE EL SELECT DE TIPO DE PAGO FUNCIONE DEBIAMENTE
+				var tipoPagoSelect = p.$w.find('select[name="tipoPago"]');
+				var seccionesSubsiguientes = p.$w.find('#seccionesSubsiguientes');
+				tipoPagoSelect.bind('change', function() {
+					if (tipoPagoSelect.val() === 'credito' || tipoPagoSelect.val() === 'contado') {
+						seccionesSubsiguientes.css('display', 'block');
+						$.post('cj/rein/get_rec',{
+							fec: p.$w.find('[name=fec]').val(),
+							fecfin: p.$w.find('[name=fecfin]').val(),
+							orga: '51a50f0f4d4a13c409000013',//orga._id.$id,
+							actividad: '51e996044d4a13440a00000e',//orga.actividad._id.$id,
+							componente: '51e99d7a4d4a13c404000016',//orga.componente._id.$id,
+							tipoPago: p.$w.find('select[name="tipoPago"]').val()
+						},function(data){
+							
+							
+							
+							
+							
+							
+							
+							
+							var tmp_ctas_pat = [];
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							p.$w.find('fieldset:eq(1) .gridBody').empty();
+							p.$w.find('fieldset:eq(3) .gridBody').empty();
+							p.$w.find('.payment:eq(11) .gridBody').empty();
+							var $row = p.$w.find('.payment:eq(11) .gridReference').clone();
+							$row.find('li:eq(3)').html('<button name="btnEliHab">Eliminar</button>&nbsp;<button name="btnAgrHab">Agregar</button>');
+							$row.find('[name=btnEliHab]').button({icons: {primary: 'ui-icon-trash'},text: false});
+							$row.find('[name=btnAgrHab]').button({icons: {primary: 'ui-icon-plusthick'},text: false});
+							$row.wrapInner('<a class="item">');
+							p.$w.find('.payment:eq(11) .gridBody').append($row.children());
+							p.$w.find('fieldset:eq(2) .gridBody,fieldset:eq(3) .gridBody').empty();
+							if(data.comp==null){
+								K.unblock({$element: p.$w});
+								return K.notification({title: ciHelper.titleMessages.infoReq,text: 'No hay comprobantes registrados para la fecha seleccionada!',type: 'error'});
+							}
+							p.comp = data.comp;
+							p.prog = data.prog;
+							var $row = p.$w.find('fieldset:eq(3) .gridReference').clone();
+							$row.find('li:eq(0)').html(data.prog.pliego.cod);
+							$row.find('li:eq(1)').html(data.prog.programa.cod);
+							$row.find('li:eq(2)').html(data.prog.subprograma.cod);
+							$row.find('li:eq(3)').html(data.prog.proyecto.cod);
+							$row.find('li:eq(4)').html(data.prog.obra.cod);
+							//$row.find('li:eq(5)').html(orga.actividad.cod);
+							//$row.find('li:eq(6)').html(orga.componente.cod);
+							$row.find('li:eq(7)').append('<select name="fuente">');
+							for(var k=0,l=p.fuen.length; k<l; k++){
+								$row.find('select').append('<option value="'+p.fuen[k]._id.$id+'">'+p.fuen[k].cod+'</option>');
+								$row.find('select option:last').data('data',p.fuen[k]);
+							}
+							$row.wrapInner('<a class="item">');
+							p.$w.find('fieldset:eq(3) .gridBody').append($row.children());
+							/* Efectivo en pagos */
+							p.$w.find('fieldset:eq(4) .gridBody').empty();
+							var $row = p.$w.find('fieldset:eq(4) .gridReference').clone();
+							$row.find('li:eq(0)').html('Efectivo Soles');
+							$row.find('li:eq(2)').html(ciHelper.formatMon(0));
+							$row.find('li:eq(3)').html(ciHelper.formatMon(0));
+							$row.wrapInner('<a class="item">');
+							$row.find('.item').data('total',0);
+							p.$w.find('fieldset:eq(4) .gridBody').append($row.children());
+							var $row = p.$w.find('fieldset:eq(4) .gridReference').clone();
+							$row.find('li:eq(0)').html('Efectivo D&oacute;lares');
+							$row.find('li:eq(2)').html(ciHelper.formatMon(0,'D'));
+							$row.find('li:eq(3)').html(ciHelper.formatMon(0));
+							$row.wrapInner('<a class="item">');
+							$row.find('.item').data('total',0);
+							p.$w.find('fieldset:eq(4) .gridBody').append($row.children());
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							/*data.comp.sort(function(a,b){
+								console.log(a);
+								//items.conceptos.cuenta.cod
+								if (a.cuenta.cod < b.cuenta.cod) //sort string ascending
+									return -1;
+								if (a.cuenta.cod > b.cuenta.cod)
+									return 1;
+								return 0;
+							});*/
+							
+							
+							
+							
+							
+							
+							
+							/* Bucle de comprobantes */
+							var tot_sol = 0,
+							tot_dol = 0,
+							tot_dol_sol = 0,
+							total = 0;
+							var _ids = [];
+							for(var i=0,j=data.comp.length; i<j; i++){
+								var result = data.comp[i];
+								if(result.estado=='X'){
+									var $row = p.$w.find('fieldset:eq(2) .gridReference').clone();
+									$row.find('li:eq(0)').html(result.tipo+' '+result.serie+' '+result.num);
+									$row.find('li:eq(1)').html(ciHelper.enti.formatName(result.cliente));
+									$row.wrapInner('<a class="item">');
+									$row.find('.item').data('data',{
+										_id: result._id.$id,
+										tipo: result.tipo,
+										serie: result.serie,
+										num: result.num
+									});
+									p.$w.find('fieldset:eq(2) .gridBody').append($row.children());
+								}else{
+									if(result.items!=null){
 										
-										
-										
-										
-										
-										
-													var tmp_ctas_pat_i = -1;
-													for(var tmp_i=0,tmp_j=tmp_ctas_pat.length; tmp_i<tmp_j; tmp_i++){
-														if(tmp_ctas_pat[tmp_i].cod==conc.cuenta.cod.substr(0,9)){
-															tmp_ctas_pat_i = tmp_i;
-															tmp_i = tmp_j;
+										if(_ids.indexOf(result._id.$id)==-1){
+											_ids.push(result._id.$id);
+											for(var k=0,l=result.items.length; k<l; k++){
+													var item = result.items[k];
+													for(var m=0,n=item.conceptos.length; m<n; m++){
+														var conc = item.conceptos[m],
+														$row = p.$w.find('fieldset:eq(1) [name='+result._id.$id+'-'+conc.cuenta._id.$id+'-'+conc.concepto._id.$id+']'),
+														tot_conc = (result.moneda=='S')?parseFloat(conc.monto):parseFloat(conc.monto)*parseFloat(result.tc);
+														console.info(result.tipo+' '+result.serie+' - '+result.num+'===>'+tot_conc);
+											
+											
+											
+											
+											
+											
+														var tmp_ctas_pat_i = -1;
+														for(var tmp_i=0,tmp_j=tmp_ctas_pat.length; tmp_i<tmp_j; tmp_i++){
+															if(tmp_ctas_pat[tmp_i].cod==conc.cuenta.cod.substr(0,9)){
+																tmp_ctas_pat_i = tmp_i;
+																tmp_i = tmp_j;
+															}
 														}
+														if(tmp_ctas_pat_i==-1){
+															tmp_ctas_pat.push({
+																cod: conc.cuenta.cod.substr(0,9),
+																cuenta: conc.cuenta,
+																total: parseFloat(conc.monto)
+															});
+														}else{
+															tmp_ctas_pat[tmp_ctas_pat_i].total += parseFloat(conc.monto);
+														}
+														//tmp_ctas_pat
+											
+											
+											
+											
+											
+											
+											
+														if($row.length>0){
+															tot_conc_sec = tot_conc + parseFloat($row.data('total'));
+															$row.find('li:eq(4)').html(ciHelper.formatMon(tot_conc_sec));
+															$row.data('total',tot_conc_sec);
+															console.log('a');
+														}else{
+															var $row = p.$w.find('fieldset:eq(1) .gridReference').clone();
+															$row.find('li:eq(0)').html(conc.cuenta.cod);
+															$row.find('li:eq(1)').html(conc.cuenta.descr);
+															$row.find('li:eq(2)').html(result.tipo+' '+result.serie+' - '+result.num);
+															$row.find('li:eq(3)').html(item.cuenta_cobrar.servicio.nomb+' - '+ciHelper.enti.formatName(result.cliente)+((result.moneda=='D')?' - Tipo de Cambio: '+ciHelper.formatMon(result.tc):''));
+															$row.find('li:eq(4)').html(ciHelper.formatMon(tot_conc));
+															$row.wrapInner('<a class="item" name="'+result._id.$id+'-'+conc.cuenta._id.$id+'-'+conc.concepto._id.$id+'">');
+															$row.find('.item').data('total',tot_conc).data('data',{
+																cuenta: {
+																	_id: conc.cuenta._id.$id,
+																	cod: conc.cuenta.cod,
+																	descr: conc.cuenta.descr
+																},
+																comprobante: {
+																	_id: result._id.$id,
+																	tipo: result.tipo,
+																	serie: result.serie,
+																	num: result.num
+																},
+																cuenta_cobrar: item.cuenta_cobrar._id.$id,
+																concepto: item.cuenta_cobrar.servicio.nomb+' - '+ciHelper.enti.formatName(result.cliente)+((result.moneda=='D')?' - Tipo de Cambio: '+ciHelper.formatMon(result.tc):'')
+															});
+															p.$w.find('fieldset:eq(1) .gridBody').append($row.children());
+															console.log('b');
+														}
+														console.log(result.tipo+' '+result.serie+' - '+result.num+'===>'+tot_conc);
+														total += tot_conc;
 													}
-													if(tmp_ctas_pat_i==-1){
-														tmp_ctas_pat.push({
-															cod: conc.cuenta.cod.substr(0,9),
-															cuenta: conc.cuenta,
-															total: parseFloat(conc.monto)
-														});
-													}else{
-														tmp_ctas_pat[tmp_ctas_pat_i].total += parseFloat(conc.monto);
-													}
-													//tmp_ctas_pat
-										
-										
-										
-										
-										
-										
-										
-													if($row.length>0){
-														tot_conc_sec = tot_conc + parseFloat($row.data('total'));
-														$row.find('li:eq(4)').html(ciHelper.formatMon(tot_conc_sec));
-														$row.data('total',tot_conc_sec);
-														console.log('a');
-													}else{
-														var $row = p.$w.find('fieldset:eq(1) .gridReference').clone();
-														$row.find('li:eq(0)').html(conc.cuenta.cod);
-														$row.find('li:eq(1)').html(conc.cuenta.descr);
-														$row.find('li:eq(2)').html(result.tipo+' '+result.serie+' - '+result.num);
-														$row.find('li:eq(3)').html(item.cuenta_cobrar.servicio.nomb+' - '+ciHelper.enti.formatName(result.cliente)+((result.moneda=='D')?' - Tipo de Cambio: '+ciHelper.formatMon(result.tc):''));
-														$row.find('li:eq(4)').html(ciHelper.formatMon(tot_conc));
-														$row.wrapInner('<a class="item" name="'+result._id.$id+'-'+conc.cuenta._id.$id+'-'+conc.concepto._id.$id+'">');
-														$row.find('.item').data('total',tot_conc).data('data',{
-															cuenta: {
-																_id: conc.cuenta._id.$id,
-																cod: conc.cuenta.cod,
-																descr: conc.cuenta.descr
-															},
-															comprobante: {
-																_id: result._id.$id,
-																tipo: result.tipo,
-																serie: result.serie,
-																num: result.num
-															},
-															cuenta_cobrar: item.cuenta_cobrar._id.$id,
-															concepto: item.cuenta_cobrar.servicio.nomb+' - '+ciHelper.enti.formatName(result.cliente)+((result.moneda=='D')?' - Tipo de Cambio: '+ciHelper.formatMon(result.tc):'')
-														});
-														p.$w.find('fieldset:eq(1) .gridBody').append($row.children());
-														console.log('b');
-													}
-													console.log(result.tipo+' '+result.serie+' - '+result.num+'===>'+tot_conc);
-													total += tot_conc;
 												}
 											}
+										if(parseFloat(result.efectivos[0].monto)!=0) tot_sol += parseFloat(result.efectivos[0].monto);
+										if(parseFloat(result.efectivos[1].monto)!=0){
+											tot_dol += parseFloat(result.efectivos[1].monto);
+											tot_dol_sol += parseFloat(result.efectivos[1].monto)*parseFloat(result.tc);
 										}
+										if(result.vouchers!=null){
+											for(var k=0,l=result.vouchers.length; k<l; k++){
+												var $row = p.$w.find('fieldset:eq(4) .gridReference').clone();
+												$row.find('li:eq(0)').html('Voucher - '+result.vouchers[k].num);
+												$row.find('li:eq(1)').html(result.vouchers[k].cuenta_banco.nomb);
+												$row.find('li:eq(2)').html(ciHelper.formatMon(result.vouchers[k].monto,result.vouchers[k].moneda));
+												$row.find('li:eq(3)').html(ciHelper.formatMon((result.vouchers[k].moneda=='S')?result.vouchers[k].monto:parseFloat(result.vouchers[k].monto)*parseFloat(result.tc)));
+												$row.find('li:eq(4)').html(ciHelper.enti.formatName(result.cliente));
+												$row.wrapInner('<a class="item vouc">');
+												$row.find('.item').data('data',{
+													num: result.vouchers[k].num,
+													cuenta_banco: {
+														_id: result.vouchers[k].cuenta_banco._id.$id,
+														nomb: result.vouchers[k].cuenta_banco.nomb,
+														cod_banco: result.vouchers[k].cuenta_banco.cod_banco,
+														cod: result.vouchers[k].cuenta_banco.cod,
+														moneda: result.vouchers[k].cuenta_banco.moneda
+													},
+													monto: parseFloat(result.vouchers[k].monto),
+													cliente: ciHelper.enti.dbRel(result.cliente),
+													tc: (result.tc!=null)?result.tc:0
+												});
+												$row.find('.item').data('total',parseFloat(result.vouchers[k].monto));
+												$row.find('.item').data('moneda',parseFloat(result.vouchers[k].moneda));
+												$row.find('.item').data('total_sol',(result.vouchers[k].moneda=='S')?result.vouchers[k].monto:parseFloat(result.vouchers[k].monto)*parseFloat(result.tc));
+												p.$w.find('fieldset:eq(4) .gridBody').append($row.children());
+											}
+										}
+									}
+								}
+							}
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							/*
+							 * AQUI LOS RECIBOS DEFINITIVOS
+							 */
+							//if(data.rede!=null&&p.$w.find('[name=orga]').data('data')._id.$id=='51a50f0f4d4a13c409000013'){
+							if(data.rede!=null){
+								for(var i=0,j=data.rede.length; i<j; i++){
+									var result = data.rede[i];
+									
+									
+									
+									
+									var $row = p.$w.find('fieldset:eq(1) [name='+result._id.$id+'-'+result.cuenta._id.$id+']'),
+									tot_conc = (result.moneda=='S')?parseFloat(result.total):parseFloat(result.total)*parseFloat(result.tasa);
+									
+									
+									
+									
+									
+									
+									
+									var tmp_ctas_pat_i = -1;
+									for(var tmp_i=0,tmp_j=tmp_ctas_pat.length; tmp_i<tmp_j; tmp_i++){
+										if(tmp_ctas_pat[tmp_i].cod==result.cuenta.cod.substr(0,9)){
+											tmp_ctas_pat_i = tmp_i;
+											tmp_i = tmp_j;
+										}
+									}
+									if(tmp_ctas_pat_i==-1){
+										tmp_ctas_pat.push({
+											cod: result.cuenta.cod.substr(0,9),
+											cuenta: result.cuenta,
+											total: parseFloat(K.round(parseFloat(result.total),2))
+										});
+									}else{
+										tmp_ctas_pat[tmp_ctas_pat_i].total += parseFloat(K.round(parseFloat(result.total),2));
+									}
+									//tmp_ctas_pat
+											
+											
+											
+											
+											
+											
+											
+									if($row.length>0){
+										tot_conc_sec = tot_conc + parseFloat($row.data('total'));
+										$row.find('li:eq(4)').html(ciHelper.formatMon(tot_conc_sec));
+										$row.data('total',tot_conc_sec);
+									}else{
+										var $row = p.$w.find('fieldset:eq(1) .gridReference').clone();
+										$row.find('li:eq(0)').html(result.cuenta.cod);
+										$row.find('li:eq(1)').html(result.cuenta.descr);
+										$row.find('li:eq(2)').html('Tec. '+result.num);
+										$row.find('li:eq(3)').html(result.concepto+' - '+ciHelper.enti.formatName(result.entidad)+((result.moneda=='D')?' - Tipo de Cambio: '+ciHelper.formatMon(result.tasa):''));
+										$row.find('li:eq(4)').html(ciHelper.formatMon(tot_conc));
+										$row.wrapInner('<a class="item" name="'+result._id.$id+'-'+result.cuenta._id.$id+'">');
+										$row.find('.item').data('total',tot_conc).data('data',{
+											cuenta: {
+												_id: result.cuenta._id.$id,
+												cod: result.cuenta.cod,
+												descr: result.cuenta.descr
+											},
+											recibo_definitivo: {
+												_id: result._id.$id,
+												num: result.num
+											},
+											concepto: result.concepto+' - '+ciHelper.enti.formatName(result.entidad)+((result.moneda=='D')?' - Tipo de Cambio: '+ciHelper.formatMon(result.tasa):'')
+										});
+										p.$w.find('fieldset:eq(1) .gridBody').append($row.children());
+									}
+									total += tot_conc;
+											
+											
+											
+											
+											
+											
+											
+											
+											
+											
 									if(parseFloat(result.efectivos[0].monto)!=0) tot_sol += parseFloat(result.efectivos[0].monto);
 									if(parseFloat(result.efectivos[1].monto)!=0){
 										tot_dol += parseFloat(result.efectivos[1].monto);
@@ -639,8 +783,8 @@ cjComp = {
 											$row.find('li:eq(0)').html('Voucher - '+result.vouchers[k].num);
 											$row.find('li:eq(1)').html(result.vouchers[k].cuenta_banco.nomb);
 											$row.find('li:eq(2)').html(ciHelper.formatMon(result.vouchers[k].monto,result.vouchers[k].moneda));
-											$row.find('li:eq(3)').html(ciHelper.formatMon((result.vouchers[k].moneda=='S')?result.vouchers[k].monto:parseFloat(result.vouchers[k].monto)*parseFloat(result.tc)));
-											$row.find('li:eq(4)').html(ciHelper.enti.formatName(result.cliente));
+											$row.find('li:eq(3)').html(ciHelper.formatMon((result.vouchers[k].moneda=='S')?result.vouchers[k].monto:parseFloat(result.vouchers[k].monto)*parseFloat(result.tasa)));
+											$row.find('li:eq(4)').html(ciHelper.enti.formatName(result.entidad));
 											$row.wrapInner('<a class="item vouc">');
 											$row.find('.item').data('data',{
 												num: result.vouchers[k].num,
@@ -652,253 +796,128 @@ cjComp = {
 													moneda: result.vouchers[k].cuenta_banco.moneda
 												},
 												monto: parseFloat(result.vouchers[k].monto),
-												cliente: ciHelper.enti.dbRel(result.cliente),
-												tc: (result.tc!=null)?result.tc:0
+												cliente: ciHelper.enti.dbRel(result.entidad),
+												tc: (result.tasa!=null)?result.tasa:0
 											});
 											$row.find('.item').data('total',parseFloat(result.vouchers[k].monto));
 											$row.find('.item').data('moneda',parseFloat(result.vouchers[k].moneda));
-											$row.find('.item').data('total_sol',(result.vouchers[k].moneda=='S')?result.vouchers[k].monto:parseFloat(result.vouchers[k].monto)*parseFloat(result.tc));
+											$row.find('.item').data('total_sol',(result.vouchers[k].moneda=='S')?result.vouchers[k].monto:parseFloat(result.vouchers[k].monto)*parseFloat(result.tasa));
 											p.$w.find('fieldset:eq(4) .gridBody').append($row.children());
 										}
 									}
 								}
 							}
-						}
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						/*
-						 * AQUI LOS RECIBOS DEFINITIVOS
-						 */
-						//if(data.rede!=null&&p.$w.find('[name=orga]').data('data')._id.$id=='51a50f0f4d4a13c409000013'){
-						if(data.rede!=null){
-							for(var i=0,j=data.rede.length; i<j; i++){
-								var result = data.rede[i];
-								
-								
-								
-								
-								var $row = p.$w.find('fieldset:eq(1) [name='+result._id.$id+'-'+result.cuenta._id.$id+']'),
-								tot_conc = (result.moneda=='S')?parseFloat(result.total):parseFloat(result.total)*parseFloat(result.tasa);
-								
-								
-								
-								
-								
-								
-								
-								var tmp_ctas_pat_i = -1;
-								for(var tmp_i=0,tmp_j=tmp_ctas_pat.length; tmp_i<tmp_j; tmp_i++){
-									if(tmp_ctas_pat[tmp_i].cod==result.cuenta.cod.substr(0,9)){
-										tmp_ctas_pat_i = tmp_i;
-										tmp_i = tmp_j;
-									}
-								}
-								if(tmp_ctas_pat_i==-1){
-									tmp_ctas_pat.push({
-										cod: result.cuenta.cod.substr(0,9),
-										cuenta: result.cuenta,
-										total: parseFloat(K.round(parseFloat(result.total),2))
-									});
-								}else{
-									tmp_ctas_pat[tmp_ctas_pat_i].total += parseFloat(K.round(parseFloat(result.total),2));
-								}
-								//tmp_ctas_pat
-										
-										
-										
-										
-										
-										
-										
-								if($row.length>0){
-									tot_conc_sec = tot_conc + parseFloat($row.data('total'));
-									$row.find('li:eq(4)').html(ciHelper.formatMon(tot_conc_sec));
-									$row.data('total',tot_conc_sec);
-								}else{
-									var $row = p.$w.find('fieldset:eq(1) .gridReference').clone();
-									$row.find('li:eq(0)').html(result.cuenta.cod);
-									$row.find('li:eq(1)').html(result.cuenta.descr);
-									$row.find('li:eq(2)').html('Tec. '+result.num);
-									$row.find('li:eq(3)').html(result.concepto+' - '+ciHelper.enti.formatName(result.entidad)+((result.moneda=='D')?' - Tipo de Cambio: '+ciHelper.formatMon(result.tasa):''));
-									$row.find('li:eq(4)').html(ciHelper.formatMon(tot_conc));
-									$row.wrapInner('<a class="item" name="'+result._id.$id+'-'+result.cuenta._id.$id+'">');
-									$row.find('.item').data('total',tot_conc).data('data',{
-										cuenta: {
-											_id: result.cuenta._id.$id,
-											cod: result.cuenta.cod,
-											descr: result.cuenta.descr
-										},
-										recibo_definitivo: {
-											_id: result._id.$id,
-											num: result.num
-										},
-										concepto: result.concepto+' - '+ciHelper.enti.formatName(result.entidad)+((result.moneda=='D')?' - Tipo de Cambio: '+ciHelper.formatMon(result.tasa):'')
-									});
-									p.$w.find('fieldset:eq(1) .gridBody').append($row.children());
-								}
-								total += tot_conc;
-										
-										
-										
-										
-										
-										
-										
-										
-										
-										
-								if(parseFloat(result.efectivos[0].monto)!=0) tot_sol += parseFloat(result.efectivos[0].monto);
-								if(parseFloat(result.efectivos[1].monto)!=0){
-									tot_dol += parseFloat(result.efectivos[1].monto);
-									tot_dol_sol += parseFloat(result.efectivos[1].monto)*parseFloat(result.tc);
-								}
-								if(result.vouchers!=null){
-									for(var k=0,l=result.vouchers.length; k<l; k++){
-										var $row = p.$w.find('fieldset:eq(4) .gridReference').clone();
-										$row.find('li:eq(0)').html('Voucher - '+result.vouchers[k].num);
-										$row.find('li:eq(1)').html(result.vouchers[k].cuenta_banco.nomb);
-										$row.find('li:eq(2)').html(ciHelper.formatMon(result.vouchers[k].monto,result.vouchers[k].moneda));
-										$row.find('li:eq(3)').html(ciHelper.formatMon((result.vouchers[k].moneda=='S')?result.vouchers[k].monto:parseFloat(result.vouchers[k].monto)*parseFloat(result.tasa)));
-										$row.find('li:eq(4)').html(ciHelper.enti.formatName(result.entidad));
-										$row.wrapInner('<a class="item vouc">');
-										$row.find('.item').data('data',{
-											num: result.vouchers[k].num,
-											cuenta_banco: {
-												_id: result.vouchers[k].cuenta_banco._id.$id,
-												nomb: result.vouchers[k].cuenta_banco.nomb,
-												cod_banco: result.vouchers[k].cuenta_banco.cod_banco,
-												cod: result.vouchers[k].cuenta_banco.cod,
-												moneda: result.vouchers[k].cuenta_banco.moneda
-											},
-											monto: parseFloat(result.vouchers[k].monto),
-											cliente: ciHelper.enti.dbRel(result.entidad),
-											tc: (result.tasa!=null)?result.tasa:0
-										});
-										$row.find('.item').data('total',parseFloat(result.vouchers[k].monto));
-										$row.find('.item').data('moneda',parseFloat(result.vouchers[k].moneda));
-										$row.find('.item').data('total_sol',(result.vouchers[k].moneda=='S')?result.vouchers[k].monto:parseFloat(result.vouchers[k].monto)*parseFloat(result.tasa));
-										p.$w.find('fieldset:eq(4) .gridBody').append($row.children());
-									}
-								}
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							p.$w.find('.payment:eq(9) .item').remove();
+							p.$w.find('.payment:eq(11) .item').remove();
+							
+							/*
+							 * ***************************************************************
+							 * GENERACION AUTOMATICA DE CONTABILIDAD PATRIMONIAL
+							 * ***************************************************************
+							 */
+							p.$w.find('.payment:eq(11) .gridBody ul:first').remove();
+							var tmp_to = 0;
+							for(var tmp_i=0,tmp_j=tmp_ctas_pat.length; tmp_i<tmp_j; tmp_i++){
+								p.$w.find('.payment:eq(11) .gridBody [name=btnAgrHab]').remove();
+								var $row = p.$w.find('.payment:eq(11) .gridReference').clone();
+								$row.find('li:eq(0)').html(tmp_ctas_pat[tmp_i].cod);
+								$row.find('li:eq(1)').html(tmp_ctas_pat[tmp_i].descr);
+								$row.find('li:eq(2)').html(ciHelper.formatMon(tmp_ctas_pat[tmp_i].total));
+								$row.find('li:eq(3)').html('<button name="btnEliHab">Eliminar</button>&nbsp;<button name="btnAgrHab">Agregar</button>');
+								$row.find('[name=btnEliHab]').button({icons: {primary: 'ui-icon-trash'},text: false});
+								$row.find('[name=btnAgrHab]').button({icons: {primary: 'ui-icon-plusthick'},text: false});
+								$row.wrapInner('<a class="item">');
+								$row.find('.item').data('data',tmp_ctas_pat[tmp_i].cuenta).data('total',tmp_ctas_pat[tmp_i].total).attr('name',tmp_ctas_pat[tmp_i].cuenta._id.$id);
+								p.$w.find('.payment:eq(11) .gridBody').append($row.children());
+								tmp_to += parseFloat(tmp_ctas_pat[tmp_i].total);
 							}
-						}
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						p.$w.find('.payment:eq(9) .item').remove();
-						p.$w.find('.payment:eq(11) .item').remove();
-						
-						/*
-						 * ***************************************************************
-						 * GENERACION AUTOMATICA DE CONTABILIDAD PATRIMONIAL
-						 * ***************************************************************
-						 */
-						p.$w.find('.payment:eq(11) .gridBody ul:first').remove();
-						var tmp_to = 0;
-						for(var tmp_i=0,tmp_j=tmp_ctas_pat.length; tmp_i<tmp_j; tmp_i++){
-							p.$w.find('.payment:eq(11) .gridBody [name=btnAgrHab]').remove();
-							var $row = p.$w.find('.payment:eq(11) .gridReference').clone();
-							$row.find('li:eq(0)').html(tmp_ctas_pat[tmp_i].cod);
-							$row.find('li:eq(1)').html(tmp_ctas_pat[tmp_i].descr);
-							$row.find('li:eq(2)').html(ciHelper.formatMon(tmp_ctas_pat[tmp_i].total));
-							$row.find('li:eq(3)').html('<button name="btnEliHab">Eliminar</button>&nbsp;<button name="btnAgrHab">Agregar</button>');
-							$row.find('[name=btnEliHab]').button({icons: {primary: 'ui-icon-trash'},text: false});
-							$row.find('[name=btnAgrHab]').button({icons: {primary: 'ui-icon-plusthick'},text: false});
+							tmp_to = parseFloat(K.round(tmp_to,2));
+					
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							
+							p.$w.find('.payment:eq(9) .gridBody [name=btnAgrDeb]').remove();
+							p.$w.find('.payment:eq(9) .gridBody ul:first').remove();
+							var $row = p.$w.find('.payment:eq(9) .gridReference').clone();
+							$row.find('li:eq(0)').html('1101.0101');
+							$row.find('li:eq(1)').html('Caja M/N');
+							$row.find('li:eq(2)').html('<input type="text" name="monto" size="8"/>');
+							$row.find('li:eq(3)').html('<button name="btnEliDeb">Eliminar</button>&nbsp;<button name="btnAgrDeb">Agregar</button>');
+							$row.find('[name=monto]').numeric().spinner({step: 0.1,min: 0,stop: function(){
+								$(this).change();
+							}}).val(tmp_to).change(function(){
+								p.calcDeb();
+							}).closest('li').find('.ui-button').css('height','14px');
+							$row.find('[name=btnEliDeb]').button({icons: {primary: 'ui-icon-trash'},text: false});
+							$row.find('[name=btnAgrDeb]').button({icons: {primary: 'ui-icon-plusthick'},text: false});
 							$row.wrapInner('<a class="item">');
-							$row.find('.item').data('data',tmp_ctas_pat[tmp_i].cuenta).data('total',tmp_ctas_pat[tmp_i].total).attr('name',tmp_ctas_pat[tmp_i].cuenta._id.$id);
-							p.$w.find('.payment:eq(11) .gridBody').append($row.children());
-							tmp_to += parseFloat(tmp_ctas_pat[tmp_i].total);
-						}
-						tmp_to = parseFloat(K.round(tmp_to,2));
-				
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						p.$w.find('.payment:eq(9) .gridBody [name=btnAgrDeb]').remove();
-						p.$w.find('.payment:eq(9) .gridBody ul:first').remove();
-						var $row = p.$w.find('.payment:eq(9) .gridReference').clone();
-						$row.find('li:eq(0)').html('1101.0101');
-						$row.find('li:eq(1)').html('Caja M/N');
-						$row.find('li:eq(2)').html('<input type="text" name="monto" size="8"/>');
-						$row.find('li:eq(3)').html('<button name="btnEliDeb">Eliminar</button>&nbsp;<button name="btnAgrDeb">Agregar</button>');
-						$row.find('[name=monto]').numeric().spinner({step: 0.1,min: 0,stop: function(){
-							$(this).change();
-						}}).val(tmp_to).change(function(){
+							$row.find('.item').data('data',{
+								_id: {
+									$id: '51a6473a4d4a13540a000009',
+								},
+								cod: '1101.0101',
+								descr: 'Caja M/N'
+							}).attr('name','51a6473a4d4a13540a000009');
+							p.$w.find('.payment:eq(9) .gridBody').append($row.children());
+							
+							/*
+							 * ***************************************************************
+							 * TOTALES
+							 * ***************************************************************
+							 */
+							var $row = p.$w.find('fieldset:eq(1) .gridReference').clone();
+							$row.find('li:eq(3)').html('Parcial').addClass('ui-button ui-widget ui-state-default ui-button-text-only');
+							$row.find('li:eq(4)').html(ciHelper.formatMon(total));
+							$row.wrapInner('<a class="result">');
+							$row.find('.result').data('total',total);
+							p.$w.find('fieldset:eq(1) .gridBody').append($row.children());
+							p.$w.find('fieldset:eq(4) .item').eq(0).data('total',tot_sol)
+							.find('li:eq(2)').html(ciHelper.formatMon(tot_sol));
+							p.$w.find('fieldset:eq(4) .item').eq(0)
+							.find('li:eq(3)').html(ciHelper.formatMon(tot_sol));
+							p.$w.find('fieldset:eq(4) .item').eq(1).data('total',tot_dol).data('total_sol',tot_dol_sol)
+							.find('li:eq(2)').html(ciHelper.formatMon(tot_dol,'D'));
+							p.$w.find('fieldset:eq(4) .item').eq(1)
+							.find('li:eq(3)').html(ciHelper.formatMon(tot_dol_sol));
+							p.calcHab();
 							p.calcDeb();
-						}).closest('li').find('.ui-button').css('height','14px');
-						$row.find('[name=btnEliDeb]').button({icons: {primary: 'ui-icon-trash'},text: false});
-						$row.find('[name=btnAgrDeb]').button({icons: {primary: 'ui-icon-plusthick'},text: false});
-						$row.wrapInner('<a class="item">');
-						$row.find('.item').data('data',{
-							_id: {
-								$id: '51a6473a4d4a13540a000009',
-							},
-							cod: '1101.0101',
-							descr: 'Caja M/N'
-						}).attr('name','51a6473a4d4a13540a000009');
-						p.$w.find('.payment:eq(9) .gridBody').append($row.children());
-						
-						/*
-						 * ***************************************************************
-						 * TOTALES
-						 * ***************************************************************
-						 */
-						var $row = p.$w.find('fieldset:eq(1) .gridReference').clone();
-						$row.find('li:eq(3)').html('Parcial').addClass('ui-button ui-widget ui-state-default ui-button-text-only');
-						$row.find('li:eq(4)').html(ciHelper.formatMon(total));
-						$row.wrapInner('<a class="result">');
-						$row.find('.result').data('total',total);
-						p.$w.find('fieldset:eq(1) .gridBody').append($row.children());
-						p.$w.find('fieldset:eq(4) .item').eq(0).data('total',tot_sol)
-						.find('li:eq(2)').html(ciHelper.formatMon(tot_sol));
-						p.$w.find('fieldset:eq(4) .item').eq(0)
-						.find('li:eq(3)').html(ciHelper.formatMon(tot_sol));
-						p.$w.find('fieldset:eq(4) .item').eq(1).data('total',tot_dol).data('total_sol',tot_dol_sol)
-						.find('li:eq(2)').html(ciHelper.formatMon(tot_dol,'D'));
-						p.$w.find('fieldset:eq(4) .item').eq(1)
-						.find('li:eq(3)').html(ciHelper.formatMon(tot_dol_sol));
-						p.calcHab();
-						p.calcDeb();
-						K.unblock({$element: p.$w});
-					},'json');
+							K.unblock({$element: p.$w});
+						},'json');
+					} else {
+						seccionesSubsiguientes.css('display', 'none');
+					}
+				});
+				//FIN DE LA FUNCION|
+
 				});
 				p.$w.find('[name=btnOrga]').click(function(){
 					ciSearch.windowSearchOrga({callback: function(data){

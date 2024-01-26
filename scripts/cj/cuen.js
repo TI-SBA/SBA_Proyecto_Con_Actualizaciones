@@ -413,6 +413,7 @@ cjCuen = {
 				fecreg: p.$w.find('[name=fecreg]').val(),
 				observ: p.$w.find('[name=observ]').val(),
 				moneda: p.moneda,
+				tipoPago: p.$w.find('[name=tipoPago] option:selected').val(),
 				items: [],
 				total: p.$w.find('[name=totalGrid]').data('monto')
 			};
@@ -530,6 +531,8 @@ cjCuen = {
 				});
 			}, 'json');
 		};
+
+
 		K.Modal({
 			id: 'windowNewCompr',
 			title: 'Nuevo Comprobante',
@@ -563,7 +566,6 @@ cjCuen = {
 			},
 			onContentLoaded: function () {
 				p.$w = $('#windowNewCompr');
-				// Tu script modificado comienza aquí
 				//ACLARO QUE ESTA FUNCION ES PARA QUE EL SELECT DE TIPO DE PAGO FUNCIONE DEBIAMENTE
 				var tipoPagoSelect = p.$w.find('select[name="tipoPago"]');
 				var seccionesSubsiguientes = p.$w.find('#seccionesSubsiguientes');

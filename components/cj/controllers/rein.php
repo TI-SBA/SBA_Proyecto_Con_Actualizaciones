@@ -82,6 +82,7 @@ class Controller_cj_rein extends Controller {
 		global $f;
 		$acti = $f->request->data["actividad"];
 		$comp = $f->request->data["componente"];
+		$tipoPago = $f->request->data["tipoPago"];
 		$actividad = $f->model("pr/acti")->params(array("_id"=>new MongoId($acti)))->get("one")->items;
 		$componente = $f->model("pr/acti")->params(array("_id"=>new MongoId($comp)))->get("one")->items;
 		$subprograma = $f->model("pr/estr")->params(array("_id"=>new MongoId($componente["subprograma"]["id"])))->get("one")->items;
@@ -102,14 +103,16 @@ class Controller_cj_rein extends Controller {
 			'fecreg'=>array(
 				'$gte'=>new MongoDate(strtotime($f->request->data['fec'])),
 				'$lte'=>new MongoDate(strtotime($f->request->data['fecfin'].' +1 day -1 minute'))
-			)
+			),
+			'tipopago' => $tipoPago  // Nuevo filtro por tipo de pago
 		)))->get("all")->items;
 		$comp_tmp2 = $f->model("cj/comp")->params(array("filter"=>array(
 			'servicio.organizacion._id'=>new MongoId($f->request->data['orga']),
 			'fecreg'=>array(
 				'$gte'=>new MongoDate(strtotime($f->request->data['fec'])),
 				'$lte'=>new MongoDate(strtotime($f->request->data['fecfin'].' +1 day -1 minute'))
-			)
+			),
+			
 		)))->get("all")->items;
 		if($comp_tmp1!=null&&$comp_tmp2!=null){
 			$comp = array_merge($comp_tmp1, $comp_tmp2);

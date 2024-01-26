@@ -618,6 +618,7 @@ class Controller_cj_cuen extends Controller
             'num'=>floatval($data['num']),
             'moneda'=>$data['moneda'],
             'observ'=>$data['observ'],
+            'tipopago'=>$data['tipoPago'],
             'items'=>$items,
             'total'=>floatval($data['total']),
             'tc'=>floatval($data['tc']),

@@ -232,6 +232,9 @@ class Model_cj_comp extends Model
         } else {
             $filter = array();
         }
+
+  
+
         if (isset($this->params['fields'])) {
             $fields = $this->params['fields'];
         } else {
